@@ -64,3 +64,13 @@ async function inserinirMunicipio() {
         console.error("Erro ao adicionar município:", err.message);
     }
 }
+
+function deleteMunicipio(id) {
+    //implementar
+    
+} 
+
+
+function updateMunicipio(id, nome, estado, caracteristica) {
+    //implementar
+}
