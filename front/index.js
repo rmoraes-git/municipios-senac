@@ -28,10 +28,14 @@ async function carregarMunicipios() {
 }
 
 async function inserirMunicipio() {
+
+    const  campoMunicipio = document.getElementById("campoMunicipio").value;
+    const  campoUF = document.getElementById("campoUF").value;
+    const  campoCaracteristica = document.getElementById("campoCaracteristica").value;
     const novoMunicipio = {
-        nome: "novo municipio",
-        estado: "RS",
-        caracteristica: "cidade das flores"
+        nome: campoMunicipio,
+        estado: campoUF,
+        caracteristica: campoCaracteristica
     };
 
     try {
