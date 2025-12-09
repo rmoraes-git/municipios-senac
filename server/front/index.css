@@ -93,6 +93,8 @@ input:focus {
 #lista-municipios {
     list-style: none;
     margin-top: 20px;
+    max-height: 500px;
+
 }
 
 #lista-municipios li {
@@ -164,6 +166,41 @@ input:focus {
     display: flex;
     justify-content: space-between;
 }
+/* Container dos controles */
+.controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.contador {
+    margin-left: 8px;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Estilo básico para a lista */
+#lista-municipios {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+#lista-municipios li {
+    background: #f5f5f5;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+#btn-carregar, #btn-mais,#btn-voltar, #btn-reset {
+   background-color: #0077ff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    
+}
+
 
 /* Responsivo */
 @media (max-width: 768px) {

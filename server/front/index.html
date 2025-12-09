@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="index.css" />
+    <title>Municípios</title>
+    <script src="index.js" defer></script>
+</head>
+
+<body>
+
+    <header>
+        <h1>Gestão de Municípios</h1>
+    </header>
+
+    <main class="container">
+
+        <!-- Formulário de adicionar -->
+        <section class="card add-municipios">
+            <h3>Adicionar Novo Município</h3>
+
+            <div class="form-group">
+                <label>Nome</label>
+                <input type="text" id="campo-municipio" placeholder="Nome do município" />
+            </div>
+
+            <div class="form-group">
+                <label>UF</label>
+                <input type="text" id="campo-uf" placeholder="Estado (ex: RS)" />
+            </div>
+
+            <div class="form-group">
+                <label>Característica</label>
+                <input type="text" id="campo-caractristica" placeholder="Descrição / característica" />
+            </div>
+
+            <button id="btn-adicionar" class="btn btn-primary">Adicionar Município</button>
+        </section>
+        <!-- Lista -->
+        <section class="card listar-municipios">
+            <h3>Lista de Municípios</h3>
+
+            <div class="controls">
+                <button id="btn-carregar" class="btn btn-secondary">Carregar Municípios</button>
+
+                <button id="btn-voltar" class="btn btn-secondary" title="Voltar">－</button>
+
+        
+                <button id="btn-mais" class="btn btn-secondary" title="Carregar mais">＋</button>
+
+                <button id="btn-reset" class="btn btn-secondary" title="Recarregar do início">⟲ Reset</button>
+
+                <span id="contador" class="contador">Carregados: 0</span>
+            </div>
+
+
+            <ul id="lista-municipios"></ul>
+        </section>
+
+
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3>Atualizar Município</h3>
+
+            <input type="hidden" id="edit-id" />
+
+            <label>Nome</label>
+            <input type="text" id="edit-nome" />
+
+            <label>UF</label>
+            <input type="text" id="edit-estado" />
+
+            <label>Característica</label>
+            <input type="text" id="edit-caracteristica" />
+
+            <div class="modal-buttons">
+                <button id="btn-salvar" class="btn btn-primary">Salvar</button>
+                <button id="btn-fechar" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

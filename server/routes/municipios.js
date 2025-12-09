@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
 
 
     estado = estado ? '%'+ estado + '%' : '%';
-    ordem = ordem && ordem.toLowerCase() === "asc" ? "ASC" : "DESC";
+    ordem = ordem && ordem.toLowerCase() === "asc" ? "DESC" : "ASC";
     offset =  parseInt(offset) || 0;    
     limit =   parseInt(limit) || 100;
     
