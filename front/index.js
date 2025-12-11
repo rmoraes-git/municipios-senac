@@ -2,33 +2,53 @@ const API = "http://127.0.0.1:3000/municipios";
 
 const listagem = document.getElementById("listagem");
 const btnCarregar = document.getElementById("btn");
-const btnSalvar = document.getElementById("btnSalvar");
-const btnSalvarEdicao = document.getElementById("btnSalvarEdicao");
 
-// Eventos
+let todosDados = [];
+let posicao = 0;
+const LIMITE = 3;
+
+// Carregar dados ao clicar
 btnCarregar.addEventListener("click", carregarMunicipios);
-btnSalvar.addEventListener("click", inserirMunicipio);
-btnSalvarEdicao.addEventListener("click", salvarEdicao);
-//--------------------------------------------------
-// LISTAR MUNICÍPIOS
-//--------------------------------------------------
+
+// --------------------------------------------------
+// BUSCAR TODOS
+// --------------------------------------------------
 async function carregarMunicipios() {
     try {
         const resposta = await fetch(API);
-        const dados = await resposta.json();
+        todosDados = await resposta.json();
 
-        listagem.innerHTML = ""; // limpa
+        listagem.innerHTML = "";
+        posicao = 0;
 
-        dados.forEach(m => criarCard(m));
+        carregarMais();
 
     } catch (erro) {
-        console.error("Erro ao carregar:", erro.message);
+        console.error("Erro:", erro.message);
     }
 }
 
-//--------------------------------------------------
-// CRIAR CARD NO FRONT
-//--------------------------------------------------
+// --------------------------------------------------
+// MOSTRAR MAIS 3
+// --------------------------------------------------
+function carregarMais() {
+    const parte = todosDados.slice(posicao, posicao + LIMITE);
+    parte.forEach(m => criarCard(m));
+    posicao += LIMITE;
+}
+
+// --------------------------------------------------
+// VOLTAR 3
+// --------------------------------------------------
+function carregarAnterior() {
+    posicao = Math.max(0, posicao - LIMITE * 2);
+    listagem.innerHTML = "";
+    carregarMais();
+}
+
+// --------------------------------------------------
+// CRIA CARD
+// --------------------------------------------------
 function criarCard(m) {
     const card = document.createElement("div");
     card.classList.add("card");
@@ -36,88 +56,68 @@ function criarCard(m) {
     card.innerHTML = `
         <h3>${m.nome} (${m.estado})</h3>
         <p>${m.caracteristica}</p>
-        <button class="btn-delete" onclick="deletar(${m.id})">Deletar</button>       
+        <button onclick="deletar(${m.id})">Excluir</button>
         <button onclick="abrirModal(${m.id})">Editar</button>
-
     `;
 
     listagem.appendChild(card);
 }
 
-//--------------------------------------------------
-// INSERIR MUNICÍPIO (POST)
-//--------------------------------------------------
-async function inserirMunicipio() {
-    const nome = document.getElementById("campoMunicipio").value;
-    const estado = document.getElementById("campoUF").value;
-    const caracteristica = document.getElementById("campoCaracteristica").value;
+// --------------------------------------------------
+// SCROLL GLOBAL
+// --------------------------------------------------
+window.addEventListener("scroll", () => {
+    const top = window.scrollY;
+    const alturaPagina = document.documentElement.scrollHeight;
+    const alturaJanela = window.innerHeight;
+    console.log("alturaPagina ", alturaPagina)
+    console.log("alturaJanela ", alturaPagina)
+    console.log( (top + alturaJanela >= alturaPagina - 5))
 
-    const novoMunicipio = { nome, estado, caracteristica };
-
-    try {
-        const resposta = await fetch(API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(novoMunicipio),
-        });
-
-        if (!resposta.ok) {
-            throw new Error("Erro ao inserir!");
-        }
-
-        carregarMunicipios();
-
-    } catch (erro) {
-        console.error("Erro ao inserir:", erro.message);
+    // Scroll para baixo → carregar mais
+    if (top + alturaJanela >= alturaPagina - 5) {
+        console.log("⬇ Rolou para BAIXO");
+        carregarMais();
     }
-}
 
+    // Scroll topo → voltar
+    if (top === 0) {
+        console.log("⬆ Rolou para CIMA");
+        carregarAnterior();
+    }
+});
+
+// --------------------------------------------------
+// DELETAR
+// --------------------------------------------------
 async function deletar(id) {
-    alert("vou deletar");
-    try {
-        const resposta = await fetch(API + "/" + id, {
-            method: "DELETE"
-        });
-
-        carregarMunicipios();
-    }
-    catch (errr) {
-        console.error("Erro ao DELETAR:", erro.message);
-    }
+    await fetch(API + "/" + id, { method: "DELETE" });
+    carregarMunicipios();
 }
 
+// --------------------------------------------------
+// MODAL (Editar)
+// --------------------------------------------------
 async function abrirModal(id) {
-    try {
-        // 1. Buscar município pelo ID
-        const resposta = await fetch(API + "/" + id);
-        const municipio = await resposta.json();
-        console.log("Municipio carregado:", municipio);
+    const resp = await fetch(API + "/" + id);
+    const m = await resp.json();
 
-        // 2. Preencher os campos do modal
-        document.getElementById("editId").value = municipio.id;
-        document.getElementById("editNome").value = municipio.nome;
-        document.getElementById("editUF").value = municipio.estado;
-        document.getElementById("editCaract").value = municipio.caracteristica;
+    document.getElementById("editId").value = m.id;
+    document.getElementById("editNome").value = m.nome;
+    document.getElementById("editUF").value = m.estado;
+    document.getElementById("editCaract").value = m.caracteristica;
 
-        // 3. Exibir o modal
-        document.getElementById("modalEditar").style.display = "block";
-
-    } catch (erro) {
-        console.error("Erro ao buscar município:", erro.message);
-        alert("Erro ao carregar dados para edição.");
-    }
+    document.getElementById("modalEditar").style.display = "flex";
 }
 
-// FECHAR MODAL
-//--------------------------------------------------
 function fecharModal() {
     document.getElementById("modalEditar").style.display = "none";
 }
 
-//--------------------------------------------------
-// SALVAR ALTERAÇÃO (PUT)
-//--------------------------------------------------
-async function salvarEdicao() {
+// --------------------------------------------------
+// SALVAR ALTERAÇÃO
+// --------------------------------------------------
+document.getElementById("btnSalvarEdicao").addEventListener("click", async () => {
 
     const id = document.getElementById("editId").value;
     const nome = document.getElementById("editNome").value;
@@ -126,21 +126,12 @@ async function salvarEdicao() {
 
     const atualizado = { nome, estado, caracteristica };
 
-    try {
-        const resposta = await fetch(API + "/" + id, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(atualizado)
-        });
+    await fetch(API + "/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(atualizado)
+    });
 
-        if (!resposta.ok) {
-            throw new Error("Erro ao atualizar!");
-        }
-
-        fecharModal();
-        carregarMunicipios();
-
-    } catch (erro) {
-        console.error("Erro ao editar:", erro.message);
-    }
-}
+    fecharModal();
+    carregarMunicipios();
+});
