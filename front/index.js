@@ -1,50 +1,50 @@
 const API = "http://127.0.0.1:3000/municipios";
 
+const CLIENT_API_KEY = "SUA_CHAVE_SECRETA_MUITO_FORTE_123456";
+const API_KEY_HEADER = "X-API-Key";
+
 const listagem = document.getElementById("listagem");
 const btnCarregar = document.getElementById("btn");
 
-let todosDados = [];
-let posicao = 0;
-const LIMITE = 3;
-
-// Carregar dados ao clicar
-btnCarregar.addEventListener("click", carregarMunicipios);
+let offset = 0;
+const LIMIT = 3;
 
 // --------------------------------------------------
-// BUSCAR TODOS
+// BUSCAR (limit + offset)
 // --------------------------------------------------
-async function carregarMunicipios() {
+async function buscarMunicipios() {
     try {
-        const resposta = await fetch(API);
-        todosDados = await resposta.json();
+        const url = `${API}?limit=${LIMIT}&offset=${offset}`;
 
-        listagem.innerHTML = "";
-        posicao = 0;
+        const resposta = await fetch(url, {
+            headers: {
+                [API_KEY_HEADER]: CLIENT_API_KEY
+            }
+        });
 
-        carregarMais();
+        const dados = await resposta.json();
+
+        // Se não voltar mais dados, não faz nada
+        if (dados.length === 0) return;
+
+        dados.forEach(m => criarCard(m));
 
     } catch (erro) {
-        console.error("Erro:", erro.message);
+        console.error("Erro ao buscar:", erro.message);
     }
 }
 
 // --------------------------------------------------
-// MOSTRAR MAIS 3
+// Carregar do zero (limpa tudo)
 // --------------------------------------------------
-function carregarMais() {
-    const parte = todosDados.slice(posicao, posicao + LIMITE);
-    parte.forEach(m => criarCard(m));
-    posicao += LIMITE;
+async function carregarMunicipios() {
+    listagem.innerHTML = "";
+    offset = 0;
+    await buscarMunicipios();
 }
 
-// --------------------------------------------------
-// VOLTAR 3
-// --------------------------------------------------
-function carregarAnterior() {
-    posicao = Math.max(0, posicao - LIMITE * 2);
-    listagem.innerHTML = "";
-    carregarMais();
-}
+// Botão inicia carregamento manual
+btnCarregar.addEventListener("click", carregarMunicipios);
 
 // --------------------------------------------------
 // CRIA CARD
@@ -64,26 +64,35 @@ function criarCard(m) {
 }
 
 // --------------------------------------------------
-// SCROLL GLOBAL
+// SCROLL INFINITO (limit + offset)
 // --------------------------------------------------
-window.addEventListener("scroll", () => {
-    const top = window.scrollY;
+let bloqueado = false;
+
+window.addEventListener("scroll", async () => {
+
+    const scrollTop = window.scrollY;
     const alturaPagina = document.documentElement.scrollHeight;
     const alturaJanela = window.innerHeight;
-    console.log("alturaPagina ", alturaPagina)
-    console.log("alturaJanela ", alturaPagina)
-    console.log( (top + alturaJanela >= alturaPagina - 5))
 
-    // Scroll para baixo → carregar mais
-    if (top + alturaJanela >= alturaPagina - 5) {
-        console.log("⬇ Rolou para BAIXO");
-        carregarMais();
+    // Scroll para baixo
+    if (scrollTop + alturaJanela >= alturaPagina - 5) {
+        if (!bloqueado) {
+            bloqueado = true;
+            offset += LIMIT;
+            await buscarMunicipios();
+            bloqueado = false;
+        }
     }
 
-    // Scroll topo → voltar
-    if (top === 0) {
-        console.log("⬆ Rolou para CIMA");
-        carregarAnterior();
+    // Scroll para cima → carregar páginas anteriores
+    if (scrollTop === 0) {
+        if (offset >= LIMIT) {
+            offset -= LIMIT;
+            listagem.innerHTML = "";
+            for (let i = 0; i <= offset; i += LIMIT) {
+                await buscarMunicipios();
+            }
+        }
     }
 });
 
@@ -115,10 +124,10 @@ function fecharModal() {
 }
 
 // --------------------------------------------------
-// SALVAR ALTERAÇÃO
+// SALVAR ALTERAÇÃO (PUT)
 // --------------------------------------------------
 document.getElementById("btnSalvarEdicao").addEventListener("click", async () => {
-
+    
     const id = document.getElementById("editId").value;
     const nome = document.getElementById("editNome").value;
     const estado = document.getElementById("editUF").value;
@@ -133,5 +142,24 @@ document.getElementById("btnSalvarEdicao").addEventListener("click", async () =>
     });
 
     fecharModal();
+    carregarMunicipios();
+});
+
+btnSalvar.addEventListener("click", async () => {
+    const nome = document.getElementById("campoMunicipio").value;
+    const estado = document.getElementById("campoUF").value;
+    const caracteristica = document.getElementById("campoCaracteristica").value;
+
+    const novoMunicipio = { nome, estado, caracteristica };
+
+    await fetch(API, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            [API_KEY_HEADER]: CLIENT_API_KEY
+        },
+        body: JSON.stringify(novoMunicipio)
+    });
+
     carregarMunicipios();
 });
