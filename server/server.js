@@ -24,7 +24,27 @@ app.get("/", (req, res) => {
 // =====================
 const PORT = process.env.PORT || 3000;
 
+const pool = require("./db");
+
+app.get("/health/db", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW() as agora");
+    res.json({
+      status: "db-ok",
+      agora: result.rows[0].agora
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "db-error",
+      message: err.message,
+      code: err.code
+    });
+  }
+});
+
 
 app.listen(PORT,  () => {
   console.log("✅ Servidor rodando ");
 });
+
+
