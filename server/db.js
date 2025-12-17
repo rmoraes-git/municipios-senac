@@ -3,29 +3,30 @@ const { Pool } = require("pg");
 
 const isProduction = process.env.NODE_ENV === "production";
 
-function criarPool() {
-  if (!isProduction) {
-    return new Pool({
-      host: process.env.PGHOST,
-      user: process.env.PGUSER,
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE,
-      port: process.env.PGPORT
-    });
-  }
+const pool = new Pool(
+  isProduction
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+          rejectUnauthorized: false
+        },
+        family: 4 // 👈 FORÇA IPv4 (ESSENCIAL no Render)
+      
+      }
+    : {
+        host: process.env.PGHOST,
+        user: process.env.PGUSER,
+        password: process.env.PGPASSWORD,
+        database: process.env.PGDATABASE,
+        port: process.env.PGPORT
+      }
+);
 
-  // 🔥 Parse manual da DATABASE_URL
-  const url = new URL(process.env.DATABASE_URL);
+console.log("🔥 DB CONFIG:1", {
+  nodeEnv: process.env.NODE_ENV,
+  usandoDatabaseUrl: !!process.env.DATABASE_URL
+});
 
-  return new Pool({
-    host: url.hostname,        // 👈 força DNS IPv4
-    user: url.username,
-    password: url.password,
-    database: url.pathname.replace("/", ""),
-    port: Number(url.port),
-    ssl: { rejectUnauthorized: false }
-  });
-}
 
-const pool = criarPool();
 module.exports = pool;
+

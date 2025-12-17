@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 // =====================
 const PORT = process.env.PORT || 3000;
 
-const pool = require("./db");
+const pool = require("./db_old");
 
 app.get("/health/db", async (req, res) => {
   try {
