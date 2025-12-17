@@ -1,7 +1,7 @@
 const API = "http://127.0.0.1:3000/municipios";
 
 const CLIENT_API_KEY = "SUA_CHAVE_SECRETA_MUITO_FORTE_123456";
-const API_KEY_HEADER = "X-API-Key";
+
 
 const listagem = document.getElementById("listagem");
 const btnCarregar = document.getElementById("btn");
@@ -18,7 +18,7 @@ async function buscarMunicipios() {
 
         const resposta = await fetch(url, {
             headers: {
-                [API_KEY_HEADER]: CLIENT_API_KEY
+                'minha-chave': CLIENT_API_KEY
             }
         });
 
@@ -127,7 +127,7 @@ function fecharModal() {
 // SALVAR ALTERAÇÃO (PUT)
 // --------------------------------------------------
 document.getElementById("btnSalvarEdicao").addEventListener("click", async () => {
-    
+
     const id = document.getElementById("editId").value;
     const nome = document.getElementById("editNome").value;
     const estado = document.getElementById("editUF").value;
@@ -156,7 +156,8 @@ btnSalvar.addEventListener("click", async () => {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            [API_KEY_HEADER]: CLIENT_API_KEY
+            "minha-chave": CLIENT_API_KEY,
+
         },
         body: JSON.stringify(novoMunicipio)
     });

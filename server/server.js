@@ -5,15 +5,14 @@ const cors = require('cors');
 
 const municipiosRouter = require("./routes/municipios");
 
+const autenticarAPIKey = require("./autorizar");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-// =====================
-// Rotas principais
-// =====================
-app.use("/municipios", municipiosRouter);
+app.use(autenticarAPIKey)
+app.use("/municipios",  municipiosRouter);
 
 // Rota raiz
 app.get("/", (req, res) => {
