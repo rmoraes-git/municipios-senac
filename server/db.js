@@ -9,7 +9,9 @@ const pool = new Pool(
         connectionString: process.env.DATABASE_URL,
         ssl: {
           rejectUnauthorized: false
-        }
+        },
+        family: 4 // 👈 FORÇA IPv4 (ESSENCIAL no Render)
+      
       }
     : {
         host: process.env.PGHOST,
