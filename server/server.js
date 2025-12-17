@@ -48,3 +48,13 @@ app.listen(PORT,  () => {
 });
 
 
+(async () => {
+  try {
+    await pool.query("SELECT 1");
+    console.log("✅ Conexão com Supabase OK");
+  } catch (err) {
+    console.error("❌ ERRO AO CONECTAR NO SUPABASE");
+    console.error("Mensagem:", err.message);
+    console.error("Código:", err.code);
+  }
+})();
